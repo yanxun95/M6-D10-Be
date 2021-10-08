@@ -6,6 +6,7 @@ import mongoose from "mongoose"
 import multer from "multer"
 import { v2 as cloudinary } from "cloudinary"
 import { CloudinaryStorage } from "multer-storage-cloudinary"
+import q2m from "query-to-mongo"
 
 const productRouter = express.Router()
 const cloudStorage = new CloudinaryStorage({
@@ -23,8 +24,9 @@ productRouter.post("/:productId/upload", multer({storage: cloudStorage}).single(
             {new: true}
             )
         if(product){
-            console.log(product, req.file)
             res.send(product) 
+        } else {
+            next(createHttpError(404, `No product with id: ${req.params.productId}`))
         }
     } catch (error) {
         next(error)
@@ -46,9 +48,24 @@ productRouter.post("/", async (req, res, next) => {
 
 productRouter.get("/", async (req, res, next) => {
     try {
-        const products = await ProductModel.find()
+        const query = q2m(req.query)
+        const products = await ProductModel
+        .find(query.criteria, query.options.fields)
+        .limit(query.options.limit || 6)
+        .skip(query.options.skip)
+        .sort(query.options.sort)
+        
+        const totalProducts = await ProductModel.countDocuments(query.criteria)
+        const resWithLinks = {
+            links: query.links("/products", totalProducts), 
+            totalProducts, 
+            pageTotal: Math.ceil(totalProducts / query.options.limit), 
+            products
+        }
+        res.send(resWithLinks)
+        // console.log("*********", query)
+        // console.log("*********", resWithLinks)
 
-        res.send(products)
     } catch (error) {
         next(error)
     }
