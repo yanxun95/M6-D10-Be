@@ -7,6 +7,7 @@ const shoppingcartRouter = express.Router()
 
 shoppingcartRouter.post("/", async (req, res, next) => {
     try {
+        // const currentUser = await ShoppingCartModel.find({})
         const newShoopingCart = new ShoppingCartModel(req.body)
         const { _id } = await newShoopingCart.save()
         res.status(201).send(_id)
@@ -18,8 +19,7 @@ shoppingcartRouter.post("/", async (req, res, next) => {
 shoppingcartRouter.get("/:shoppingcartId", async (req, res, next) => {
     try {
         const shoppingcartId = req.params.shoppingcartId
-
-        const shoppingcart = await ShoppingCartModel.findById(shoppingcartId).populate('products')
+        const shoppingcart = await ShoppingCartModel.findById(shoppingcartId).populate({ path: "products", populate: { path: "productId", select: '_id name price' } })
 
         if (shoppingcart) {
             res.send(shoppingcart)
@@ -46,5 +46,7 @@ shoppingcartRouter.delete("/:shoppingcartId", async (req, res, next) => {
         next(error)
     }
 })
+
+
 
 export default shoppingcartRouter
