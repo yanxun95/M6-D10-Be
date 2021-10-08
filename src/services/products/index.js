@@ -1,29 +1,32 @@
+
 import express from "express"
 import createHttpError from "http-errors"
 import ProductModel from "./schema.js"
 
-const productRouter = express.Router()
+
+const productRouter = express.Router();
 
 productRouter.post("/", async (req, res, next) => {
-    try {
-        const newProduct = new ProductModel(req.body)
-        const { _id } = await newProduct.save()
+  try {
+    const newProduct = new ProductModel(req.body);
+    const { _id } = await newProduct.save();
 
-        res.status(201).send({ _id })
-    } catch (error) {
-        next(error)
-    }
-})
+    res.status(201).send({ _id });
+  } catch (error) {
+    next(error);
+  }
+});
 
 productRouter.get("/", async (req, res, next) => {
-    try {
-        const products = await ProductModel.find()
+  try {
+    const products = await ProductModel.find();
 
-        res.send(products)
-    } catch (error) {
-        next(error)
-    }
-})
+    res.send(products);
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 productRouter.get("/:productId", async (req, res, next) => {
     try {
@@ -75,3 +78,4 @@ productRouter.delete("/:productId", async (req, res, next) => {
 })
 
 export default productRouter
+
