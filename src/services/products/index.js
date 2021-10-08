@@ -56,15 +56,13 @@ productRouter.get("/", async (req, res, next) => {
         .sort(query.options.sort)
         
         const totalProducts = await ProductModel.countDocuments(query.criteria)
-        const resWithLinks = {
+        const productsWithLinks = {
             links: query.links("/products", totalProducts), 
             totalProducts, 
             pageTotal: Math.ceil(totalProducts / query.options.limit), 
             products
         }
-        res.send(resWithLinks)
-        // console.log("*********", query)
-        // console.log("*********", resWithLinks)
+        res.send(productsWithLinks)
 
     } catch (error) {
         next(error)
