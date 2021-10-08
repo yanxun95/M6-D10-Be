@@ -1,8 +1,8 @@
-import express from "express";
-import createHttpError from "http-errors";
-import ProductModel from "./schema.js";
-import ReviewModel from "../reviews/schema.js";
-import mongoose from "mongoose";
+
+import express from "express"
+import createHttpError from "http-errors"
+import ProductModel from "./schema.js"
+
 
 const productRouter = express.Router();
 
@@ -27,4 +27,55 @@ productRouter.get("/", async (req, res, next) => {
   }
 });
 
-export default productRouter;
+
+productRouter.get("/:productId", async (req, res, next) => {
+    try {
+        const productId = req.params.productId
+
+        const product = await ProductModel.findById(productId)
+
+        if (product) {
+            res.send(product)
+        } else {
+            next(createHttpError(404, `product with id ${productId} not found!`))
+        }
+    } catch (error) {
+        next(error)
+    }
+})
+
+productRouter.put("/:productId", async (req, res, next) => {
+    try {
+        const productId = req.params.productId
+        const modifiedProduct = await ProductModel.findByIdAndUpdate(productId, req.body, {
+            new: true,
+        })
+
+        if (modifiedProduct) {
+            res.send(modifiedProduct)
+        } else {
+            next(createHttpError(404, `blog with id ${productId} not found!`))
+        }
+    } catch (error) {
+        next(error)
+    }
+})
+
+productRouter.delete("/:productId", async (req, res, next) => {
+    try {
+        const productId = req.params.productId
+
+        const deletedProduct = await ProductModel.findByIdAndDelete(productId)
+
+        if (deletedProduct) {
+            res.status(204).send()
+        } else {
+            next(createHttpError(404, `product with id ${productId} not found!`))
+        }
+    } catch (error) {
+        next(error)
+    }
+})
+
+export default productRouter
+
