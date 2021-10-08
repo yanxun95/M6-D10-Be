@@ -21,10 +21,11 @@ productRouter.get("/", async (req, res, next) => {
     try {
         const products = await ProductModel.find()
 
-        res.send(blogs)
+        res.send(products)
     } catch (error) {
         next(error)
     }
 })
+
 
 export default productRouter
